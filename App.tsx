@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { INITIAL_DATA, AppData, User, Manhua, UserRole, Chapter, GitHubConfig } from './types';
 import { fetchFromGitHub, saveToGitHub } from './services/githubService';
-import { ChatWidget } from './components/ChatWidget';
 import { Reader } from './components/Reader';
 import { 
   Home, 
@@ -21,7 +20,6 @@ import {
 // --- Local Storage Keys ---
 const LS_DEVICE_ID = 'kurd_manhua_device_id';
 const LS_GITHUB_CONFIG = 'kurd_manhua_gh_config';
-const LS_GEMINI_KEY = 'kurd_manhua_gemini_key';
 
 // --- Helper Functions ---
 const generateDeviceId = () => Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -36,7 +34,6 @@ const App: React.FC = () => {
   
   // Settings State
   const [ghConfig, setGhConfig] = useState<GitHubConfig>({ owner: '', repo: '', path: 'db.json', token: '' });
-  const [geminiKey, setGeminiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
 
@@ -57,9 +54,6 @@ const App: React.FC = () => {
     const savedGh = localStorage.getItem(LS_GITHUB_CONFIG);
     if (savedGh) setGhConfig(JSON.parse(savedGh));
     
-    const savedGemini = localStorage.getItem(LS_GEMINI_KEY);
-    if (savedGemini) setGeminiKey(savedGemini);
-
   }, []);
 
   // --- Actions ---
@@ -128,7 +122,6 @@ const App: React.FC = () => {
 
   const saveSettings = () => {
     localStorage.setItem(LS_GITHUB_CONFIG, JSON.stringify(ghConfig));
-    localStorage.setItem(LS_GEMINI_KEY, geminiKey);
     setStatusMsg('ڕێکخستنەکان پاشەکەوت کران.');
   };
 
@@ -306,7 +299,7 @@ const App: React.FC = () => {
     <div className="p-6 md:p-10 md:mr-64 pb-24 min-h-screen">
       <h2 className="text-3xl font-bold text-white mb-8">بەڕێوەبردن</h2>
       
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="max-w-2xl mx-auto">
         {/* GitHub Settings */}
         <div className="glass p-6 rounded-2xl border border-slate-700">
           <div className="flex items-center gap-2 mb-4 text-white">
@@ -332,17 +325,6 @@ const App: React.FC = () => {
                 </button>
              </div>
           </div>
-        </div>
-
-        {/* Gemini Settings */}
-        <div className="glass p-6 rounded-2xl border border-slate-700">
-           <div className="flex items-center gap-2 mb-4 text-white">
-            <span className="text-indigo-400">✨</span>
-            <h3 className="font-bold">Gemini AI Configuration</h3>
-          </div>
-          <p className="text-slate-400 text-sm mb-4">بۆ چالاککردنی پێشنیاری زیرەک، تکایە کلیلەکەت لێرە دابنێ.</p>
-          <input type="password" placeholder="Gemini API Key" className="w-full bg-slate-900 border border-slate-700 p-2 rounded text-white mb-4" value={geminiKey} onChange={e => setGeminiKey(e.target.value)} />
-          <button onClick={saveSettings} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full">Save Key</button>
         </div>
       </div>
       
@@ -411,9 +393,6 @@ const App: React.FC = () => {
         {view === 'admin' && renderAdmin()}
         {view === 'profile' && renderProfile()}
       </main>
-
-      {/* AI Chat Widget */}
-      <ChatWidget apiKey={geminiKey} manhuas={data.manhuas} />
     </div>
   );
 };
